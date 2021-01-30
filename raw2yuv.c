@@ -17,9 +17,6 @@
 
 //#define DEBUG_FUNCS
 
-#define INPUT_FILE "00002.raw"
-#define OUTPUT_FILE "00002.yuv"
-
 #define IMAGE_WIDTH 1920
 #define IMAGE_HEIGHT 1080
 #define INPUT_ENCODING MMAL_ENCODING_BAYER_SRGGB12P
@@ -29,6 +26,8 @@
 
 #define FAKE_TIMESTAMP 37
 
+static const char *input_file;
+static const char *output_file;
 static MMAL_COMPONENT_T *isp;
 static MMAL_PORT_T *iport, *oport;
 static MMAL_POOL_T *ipool, *opool;
@@ -126,7 +125,7 @@ o_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer)
 
 	printf("OUTPUT: Buffer %p from isp, filled %d, timestamp %llu, flags %04X: duration: %.3fms\n",
         buffer, buffer->length, buffer->pts, buffer->flags, (end_ts - start_ts) / 1000000.0);
-    int fd = open("00002.yuv", O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+    int fd = open(output_file, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
     size_t s = write(fd, buffer->data, buffer->length);
     if (s != buffer->length) {
         printf("error writing output data\n");
@@ -235,10 +234,18 @@ setup_output_port(void)
 }
 
 int
-main(void)
+main(int argc, char **argv)
 {
   	MMAL_STATUS_T status;
     MMAL_BUFFER_HEADER_T *buf_hdr;
+
+    if (argc != 3) {
+        printf("usage: raw2yuv input output\n");
+        exit(1);
+    }
+
+    input_file = argv[1];
+    output_file = argv[2];
 
     /* Create the ISP MMAL component. We make things simple and store in a global */
     status = mmal_component_create("vc.ril.isp", &isp);
@@ -251,7 +258,7 @@ main(void)
     setup_output_port();
 
     buf_hdr = mmal_queue_get(ipool->queue);
-    int fd = open(INPUT_FILE, O_RDONLY);
+    int fd = open(input_file, O_RDONLY);
     size_t s = read(fd, buf_hdr->data, buf_hdr->alloc_size);
     if (s != buf_hdr->alloc_size) {
         printf("unable to read all data from file\n");
