@@ -24,6 +24,8 @@
 #define IMAGE_HEIGHT 1080
 #define INPUT_ENCODING MMAL_ENCODING_BAYER_SRGGB12P
 #define OUTPUT_ENCODING MMAL_ENCODING_I420
+#define ZERO_COPY MMAL_TRUE
+
 
 #define FAKE_TIMESTAMP 37
 
@@ -170,6 +172,7 @@ setup_input_port(void)
 
     /* allocate a pool with just a single buffer, that's all that
      * is needed for this app */
+    mmal_port_parameter_set_boolean(iport, MMAL_PARAMETER_ZERO_COPY, ZERO_COPY);
     ipool = mmal_port_pool_create(iport, 1, iport->buffer_size);
     if (ipool == NULL) {
         printf("mmal_port_pool_create failed\n");
@@ -207,7 +210,7 @@ setup_output_port(void)
         exit(1);
     }
 
-    mmal_port_parameter_set_boolean(oport, MMAL_PARAMETER_ZERO_COPY, MMAL_FALSE);
+    mmal_port_parameter_set_boolean(oport, MMAL_PARAMETER_ZERO_COPY, ZERO_COPY);
     opool = mmal_port_pool_create(oport, 1, oport->buffer_size);
     if (opool == NULL) {
         printf("mmal_port_pool_create failed\n");

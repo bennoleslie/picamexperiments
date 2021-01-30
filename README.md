@@ -73,3 +73,4 @@ perform any realistic buffer management; simply enough to make it work.
 
 Initial benchmarks indicate that handling takes around 17-30ms.
 
+When using zero copy handling takes 6-12ms.
