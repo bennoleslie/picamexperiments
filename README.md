@@ -40,3 +40,36 @@ work(uint8_t *buf) {
 
 Uses over 50% CPU usage. This is, relatively significant!
 
+When dumping to a ram disk (instead of SD card) there is still significant time (~28%)
+
+Certainly we are memory bandwidth bound! Setting things up to be zero-copy will be key!
+
+## ISP
+
+The Raspberry Pi has an image signal processor (ISP).
+
+THe image signal processor is able to do some important things; specifically,
+it can convert from RAW bayer image to a YUV image.
+
+The YUV image is more appropriate for our post-processing (barcode recognition),
+and additionally for h264 encoding.
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=175711 indirectly
+show the various functions performed:
+
+1/ black level compensation
+2/ lens shading
+3/ white balance
+4/ defective pixel compensation
+5/ crosstalk
+6/ gamma
+7/ sharpening
+
+https://github.com/6by9/lens_shading
+
+In this first example usage we make a RAW (as capture by v4lcap) to YUV (specifically,
+I410 format) converter. This is a very simple example and doesn't really
+perform any realistic buffer management; simply enough to make it work.
+
+Initial benchmarks indicate that handling takes around 17-30ms.
+

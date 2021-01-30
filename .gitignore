@@ -1,4 +1,6 @@
 *.raw
+*.yuv
 *.o
 v4lcap
+raw2yuv
 
