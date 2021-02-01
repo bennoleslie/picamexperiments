@@ -1,6 +1,6 @@
 /*
  * This is intended as a very simple example of using MAML to translate
- * a raw, bayered image to YUV.
+ * a set of YUV images to a raw H264 file.
  */
 #include <sys/types.h>
 #include <stdio.h>
