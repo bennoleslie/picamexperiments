@@ -126,8 +126,10 @@ o_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer)
     end_ts = timestamp();
     UNUSED(port);
 
+#if 0
 	printf("OUTPUT: Buffer %p from isp, filled %d, timestamp %llu, flags %04X: duration: %.3fms\n",
         buffer, buffer->length, buffer->pts, buffer->flags, (end_ts - start_ts) / 1000000.0);
+#endif
     size_t s = write(output_fd, buffer->data, buffer->length);
     if (s != buffer->length) {
         printf("error writing output data\n");
@@ -148,9 +150,10 @@ i_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer)
 {
     /* do nothing; the input buffer is free. if this was a real processing
      * pipeline we could release the buffer back to the pool */
-	printf("INPUT: Buffer %p from isp, filled %d, timestamp %llu, flags %04X\n",
+#if 0
+    printf("INPUT: Buffer %p from isp, filled %d, timestamp %llu, flags %04X\n",
         buffer, buffer->length, buffer->pts, buffer->flags);
-
+#endif
     UNUSED(port);
 
     mmal_buffer_header_release(buffer);
@@ -314,26 +317,21 @@ main(int argc, char **argv)
     }
 
     for (int i = 2; i < argc; i++) {
-        printf("getting buffer from input pool\n");
         buf_hdr = mmal_queue_get(ipool->queue);
         if (buf_hdr == NULL) {
             printf("unable to get buffer from input pool\n");
             exit(1);
         }
-        printf("got buffer from input pool: %p/%d\n", buf_hdr->data, buf_hdr->alloc_size);
-
-        printf("Reading from file: %s\n", argv[i]);
         int fd = open(argv[i], O_RDONLY);
         read_all(fd, buf_hdr->data, buf_hdr->alloc_size);
         close(fd);
-        printf("read all data\n");
+
         buf_hdr->length = buf_hdr->alloc_size;
         buf_hdr->flags = MMAL_BUFFER_HEADER_FLAG_FRAME_END;
         buf_hdr->pts = FAKE_TIMESTAMP;
 
         /* push the buffer to the port so that it will be processed */
         start_ts = timestamp();
-        printf("sending buffer\n");
         status = mmal_port_send_buffer(iport, buf_hdr);
         if (status != MMAL_SUCCESS) {
             printf("Failed to send buffer to input port\n");

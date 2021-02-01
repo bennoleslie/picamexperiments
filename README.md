@@ -74,3 +74,13 @@ perform any realistic buffer management; simply enough to make it work.
 Initial benchmarks indicate that handling takes around 17-30ms.
 
 When using zero copy handling takes 6-12ms.
+
+## Video Encoder
+
+The VideoCore on the Raspberry Pi can encode H264 video.
+
+It takes around 5.5 seconds for the yuv2h264 to encode 10 seconds (300 frames) into
+a video. There is effectively no user computation time there, and the bulk of the
+time is system overhead (primarily reading the files from disk into memory!).
+
+One problem is that the output FPS is not exactly 30fps. This needs more work!

@@ -1,6 +1,7 @@
 *.raw
 *.yuv
+*.h264
 *.o
 v4lcap
 raw2yuv
-
+yuv2h264
